@@ -39,6 +39,38 @@
                         <td>{{ $family->member_count }}</td>
                         <td class="text-end">
                             <a href="#" onclick="removeFamilyHandler({{ $family->id }})">Delete</a>
+                            
+                            {{-- Check privileges and authentication for edit link --}}
+                            @if(Auth::check() && Gate::allows('update', $family))
+                                <a href="#" data-bs-toggle="modal" data-bs-target={{ "#modal-" . $family->id }} >Edit</a>
+                                <div class="modal fade" id={{ "modal-" . $family->id }} tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h1 class="modal-title fs-5">Modal title</h1>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <form action={{ "/family/update/" . $family->id }} method="POST" onsubmit="familyEditedFormSubmitHandler(event)">
+                                                <div class="modal-body">
+                                                    <div class="mb-3">
+                                                        <label class="form-label" for="family_name">Family Name</label>
+                                                        <input class="form-control" type="text" name="name" id={{ "modal-" . $family->id . '-familyName' }} placeholder="Family Name" value={{ $family->name }} required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label" for="memberCount">Member Count</label>
+                                                        <input class="form-control" type="number" name="memberCount" id={{ "modal-" . $family->id . '-memberCount' }} placeholder="Family Name" value={{ $family->member_count }} required>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                    <input class="btn btn-primary" type="submit" value="Save changes">
+                                                </div>
+                                            </form>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
                         </td>
                     </tr>
                 @endforeach
@@ -77,6 +109,34 @@
                 // Optionally, you can update the UI to show the new family without reloading
             } else {
                 console.error("Error creating family:", response.statusText);
+            }
+        } catch (error) {
+            console.error("Network error:", error);
+        }
+    }
+
+    async function familyEditedFormSubmitHandler(event) {
+        event.preventDefault();
+        const form = event.target;
+        const formData = new FormData(form);
+        
+        console.log("Family edit form submit handler called");
+
+        try {
+            const response = await fetch(form.action, {
+                method: form.method,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').getAttribute('value')
+                },
+                body: formData
+            });
+            
+            if (response.ok) {
+                const result = await response.json();
+                console.log("Family updated:", result);
+                // Optionally, you can update the UI to show the updated family without reloading
+            } else {
+                console.error("Error updating family:", response.statusText);
             }
         } catch (error) {
             console.error("Network error:", error);
