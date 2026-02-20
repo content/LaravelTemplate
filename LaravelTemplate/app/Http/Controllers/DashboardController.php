@@ -14,11 +14,13 @@ class DashboardController extends Controller
 
     public function index()
     {
-        return view('pages.dashboard');
+        return view('pages.dashboard', [
+            "user" => auth()->user() // Pass the authenticated user to the view
+        ]);
     }
 
     // If you don't want to protect all methods in the controller, you can apply the middleware to specific methods instead.
-    
+
     // public function singleAuthProtectedMethod()
     // {
     //     This method will be protected by the auth middleware, while other methods in the controller will not require authentication.
