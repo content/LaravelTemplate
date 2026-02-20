@@ -26,7 +26,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('update', function (User $user, Family $family) {
             // Implement your logic to determine if the user can update the family
             // For example, you might check if the user is an admin or if they own the family
-            return $user->isAdmin() || $user->id === $family->owner_id;
+            return $user->isAdmin(); // This is a simple example, you can replace it with your actual logic
         });
     }
 }
